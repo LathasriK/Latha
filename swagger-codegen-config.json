@@ -1,0 +1,5 @@
+{
+  "library": "spring-mvc",
+  "modelPackage": "com.example.graphqlwrapper.model",
+  "invokerPackage": "com.example.graphqlwrapper"
+}

@@ -1,0 +1,106 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.2'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    // Swagger Codegen
+    id 'org.hidetake.swagger.generator' version '2.18.2'
+    // ...
+    // Spotless
+    id "com.diffplug.spotless" version "5.3.0"
+    // ...
+
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+
+    // Manifold GraphQL
+    implementation "systems.manifold:manifold-graphql:2020.1.23"
+    annotationProcessor "systems.manifold:manifold-graphql:2020.1.23"
+    // ...
+
+    // Swagger Annotations
+    compileClasspath('io.swagger:swagger-annotations:1.5.21')
+    // ...
+    // Swagger Codegen
+    swaggerCodegen 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.21'
+
+// ...
+    // SpringDoc OpenAPI UI
+    implementation 'org.springdoc:springdoc-openapi-ui:1.4.3'
+    // ...o.swagger:swagger-annotations:1.5.21"
+
+}
+// ...
+
+// Manifold GraphQL: Configure.
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-Xplugin:Manifold']
+}
+tasks.compileJava {
+    // Add build/resources/main to javac's classpath.
+    classpath += files(sourceSets.main.output.resourcesDir)
+    dependsOn processResources
+}
+tasks.compileTestJava {
+    // Add build/resources/test to test javac's classpath.
+    classpath += files(sourceSets.test.output.resourcesDir)
+    dependsOn processTestResources
+}
+// Swagger Codegen: Define output directory for generated code.
+def generatedSourceOutputDir = "${buildDir}/generated-source"
+
+// Swagger Codegen: Configure.
+swaggerSources {
+    openapi {
+        // OpenAPI spec location.
+        inputFile = file('src/main/resources/public/api-spec.yaml')
+        code {
+            language = 'spring'
+            // Generate only models (vs. components, controllers, etc.).
+            components = ['models']
+            // Config file location.
+            configFile = file('swagger-codegen-config.json')
+            outputDir = file("${generatedSourceOutputDir}")
+        }
+    }
+}
+
+// Swagger Codegen: Attach the generated directories as a source for the project.
+sourceSets.main.java.srcDir "${generatedSourceOutputDir}/src/main/java"
+sourceSets.main.resources.srcDir "${generatedSourceOutputDir}/src/main/resources"
+
+// Spotless: Configure.
+spotless {
+    java {
+        googleJavaFormat()
+        importOrder 'java', 'javax', 'org', 'com', 'io'
+        removeUnusedImports()
+    }
+}
+
+
+test {
+    useJUnitPlatform()
+}
+task golden {
+    dependsOn clean
+    dependsOn generateSwaggerCode
+    dependsOn spotlessJavaApply
+    dependsOn test
+    tasks.findByName('generateSwaggerCode').mustRunAfter clean
+    tasks.findByName('spotlessJavaApply').mustRunAfter generateSwaggerCode
+    tasks.findByName('test').mustRunAfter generateSwaggerCode
+}

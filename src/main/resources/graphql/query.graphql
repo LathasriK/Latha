@@ -1,0 +1,62 @@
+query GetCityByName($name: String!) {
+    getCityByName(name: $name) {
+        ...City
+    }
+}
+
+fragment City on City {
+    id
+    name
+    country
+    coord {
+        ...Coordinates
+    }
+    weather {
+        ...Weather
+    }
+}
+
+fragment Clouds on Clouds {
+    all
+    visibility
+    humidity
+}
+
+fragment Coordinates on Coordinates {
+    lon
+    lat
+}
+
+fragment Summary on Summary {
+    title
+    description
+    icon
+}
+
+fragment Temperature on Temperature {
+    actual
+    feelsLike
+    min
+    max
+}
+
+fragment Weather on Weather {
+    summary {
+        ...Summary
+    }
+    temperature {
+        ...Temperature
+    }
+    wind {
+        ...Wind
+    }
+    clouds {
+        ...Clouds
+    }
+    timestamp
+}
+
+fragment Wind on Wind {
+    speed
+    deg
+}

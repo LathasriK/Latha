@@ -1,0 +1,120 @@
+openapi: 3.0.1
+info:
+  title: GraphQL Wrapper
+  description: Provides a REST wrapper for a GraphQL service.
+  version: "1.0.0"
+servers:
+  - url: /api/v1
+
+paths:
+  /cities/{city-name}:
+    get:
+      operationId: getCityByName
+      parameters:
+        - $ref: "#/components/parameters/Name"
+      responses:
+        200:
+          description: City
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/City"
+
+components:
+  parameters:
+    Name:
+      name: city-name
+      description: "Example: Minneapolis."
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    City:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        country:
+          type: string
+        coord:
+          $ref: "#/components/schemas/Coordinates"
+        weather:
+          $ref: "#/components/schemas/Weather"
+
+    Clouds:
+      type: object
+      properties:
+        all:
+          type: integer
+          format: int32
+        visibility:
+          type: integer
+          format: int32
+        humidity:
+          type: integer
+          format: int32
+
+    Coordinates:
+      type: object
+      properties:
+        lon:
+          type: number
+          format: float
+        lat:
+          type: number
+          format: float
+
+    Summary:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+
+    Temperature:
+      type: object
+      properties:
+        actual:
+          type: number
+          format: float
+        feelsLike:
+          type: number
+          format: float
+        min:
+          type: number
+          format: float
+        max:
+          type: number
+          format: float
+
+    Weather:
+      type: object
+      properties:
+        summary:
+          $ref: "#/components/schemas/Summary"
+        temperature:
+          $ref: "#/components/schemas/Temperature"
+        wind:
+          $ref: "#/components/schemas/Wind"
+        clouds:
+          $ref: "#/components/schemas/Clouds"
+        timestamp:
+          type: integer
+          format: int32
+
+    Wind:
+      type: object
+      properties:
+        speed:
+          type: number
+          format: float
+        deg:
+          type: integer
+          format: int32

@@ -1,0 +1,12 @@
+server:
+  # Serve the application at 8080.
+  port: 8080
+  servlet:
+    # Prefix all routes with /api.
+    contextPath: /api
+# ...
+springdoc:
+  swagger-ui:
+    # Specify the OpenAPI spec location.
+    url: /api/api-spec.yaml
+# ...
